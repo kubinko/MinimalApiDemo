@@ -1,19 +1,19 @@
 using Microsoft.EntityFrameworkCore;
-
-int currentId = 0;
+using MinimalApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AttendanceDb>(options => options.UseInMemoryDatabase("attendancedb"));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddSingleton<IIdGenerator, InMemoryIdGenerator>();
 
 var app = builder.Build();
 
 var group = app.MapGroup("attendance");
 
-group.MapPost("/", async (Attendee attendee, AttendanceDb db) =>
+group.MapPost("/", async (Attendee attendee, AttendanceDb db, IIdGenerator idgenerator) =>
 {
-    attendee.Id = ++currentId;
+    attendee.Id = idgenerator.GenerateAttendeeId();
     await db.AddAsync(attendee);
     await db.SaveChangesAsync();
 
