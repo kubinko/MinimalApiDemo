@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MinimalApi.Database;
 using MinimalApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,18 +55,3 @@ group.MapDelete("{id}", async (long id, AttendanceDb db) =>
 });
 
 app.Run();
-
-record Attendee(string Name, int YearOfBirth, string Email, string Phone)
-{
-    public long Id { get; set; }
-};
-
-class AttendanceDb : DbContext
-{
-    public AttendanceDb(DbContextOptions<AttendanceDb> context) : base(context)
-    {
-
-    }
-
-    public DbSet<Attendee> Attendees { get; set; } = default!;
-}
