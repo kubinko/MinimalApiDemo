@@ -1,10 +1,12 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapPost("attendance", () => "New attendee added.");
-app.MapPut("attendance/{id}", (long id) => $"Attendee {id} updated.");
-app.MapGet("attendance/{id}", (long id) => $"Attendee {id}.");
-app.MapGet("attendance", () => "List of all attendees.");
-app.MapDelete("attendance/{id}", (long id) => $"Attendee {id} deleted.");
+var group = app.MapGroup("attendance");
+
+group.MapPost("/", () => "New attendee added.");
+group.MapPut("{id}", (long id) => $"Attendee {id} updated.");
+group.MapGet("{id}", (long id) => $"Attendee {id}.");
+group.MapGet("", () => "List of all attendees.");
+group.MapDelete("{id}", (long id) => $"Attendee {id} deleted.");
 
 app.Run();
