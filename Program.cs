@@ -23,11 +23,15 @@ builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(curren
 builder.Services.AddValidatorsFromAssembly(currentAssembly);
 builder.Services.AddHealthChecks();
 
+builder.Services.AddProblemDetails();
+
 builder.Host.UseSerilog();
 
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 
 var group = app.MapGroup("attendance");
 
@@ -42,5 +46,7 @@ group.MapGet("", async (IMediator mediator) => await mediator.Send(new AllAttend
 group.MapDelete("{id}", async (IMediator mediator, long id) => await mediator.Send(new AttendeeDeleteCommand() { Id = id }));
 
 app.MapHealthChecks("/health");
+
+app.Map("/exception", () => { throw new InvalidOperationException("Sample Exception"); });
 
 app.Run();
