@@ -5,6 +5,12 @@ using MinimalApi.Commands;
 using MinimalApi.Database;
 using MinimalApi.Queries;
 using MinimalApi.Services;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +23,11 @@ builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(curren
 builder.Services.AddValidatorsFromAssembly(currentAssembly);
 builder.Services.AddHealthChecks();
 
+builder.Host.UseSerilog();
+
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 var group = app.MapGroup("attendance");
 
