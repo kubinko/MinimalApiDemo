@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using FluentValidation.Results;
+using MediatR;
 using MinimalApi.Database;
 using MinimalApi.Services;
 
@@ -11,15 +13,23 @@ namespace MinimalApi.Commands
     {
         private readonly AttendanceDb _db;
         private readonly IIdGenerator _idGenerator;
+        private readonly IValidator<Attendee> _validator;
 
-        public AttendeeCommandHandler(AttendanceDb db, IIdGenerator idGenerator)
+        public AttendeeCommandHandler(AttendanceDb db, IIdGenerator idGenerator, IValidator<Attendee> validator)
         {
             _db = db;
             _idGenerator = idGenerator;
+            _validator = validator;
         }
 
         public async Task<IResult> Handle(AttendeeCreateCommand request, CancellationToken cancellationToken)
         {
+            ValidationResult validationResult = _validator.Validate(request.Attendee);
+            if (!validationResult.IsValid)
+            {
+                return Results.BadRequest(validationResult.ToDictionary());
+            }
+
             request.Attendee.Id = _idGenerator.GenerateAttendeeId();
 
             await _db.AddAsync(request.Attendee, cancellationToken);
@@ -30,6 +40,12 @@ namespace MinimalApi.Commands
 
         public async Task<IResult> Handle(AttendeeUpdateCommand request, CancellationToken cancellationToken)
         {
+            ValidationResult validationResult = _validator.Validate(request.Attendee);
+            if (!validationResult.IsValid)
+            {
+                return Results.BadRequest(validationResult.ToDictionary());
+            }
+
             _db.Update(request.Attendee);
 
             await _db.SaveChangesAsync(cancellationToken);

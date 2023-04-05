@@ -1,3 +1,4 @@
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MinimalApi.Commands;
@@ -10,13 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AttendanceDb>(options => options.UseInMemoryDatabase("attendancedb"));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddSingleton<IIdGenerator, InMemoryIdGenerator>();
-builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly));
+
+var currentAssembly = typeof(Program).Assembly;
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(currentAssembly));
+builder.Services.AddValidatorsFromAssembly(currentAssembly);
 
 var app = builder.Build();
 
 var group = app.MapGroup("attendance");
 
-group.MapPost("/", async (IMediator mediator, Attendee attendee) => await mediator.Send(new AttendeeCreateCommand(attendee)));
+group.MapPost("", async (IMediator mediator, Attendee attendee) => await mediator.Send(new AttendeeCreateCommand(attendee)));
 group.MapPut("{id}", async (IMediator mediator, long id, Attendee attendee) =>
 {
     attendee.Id = id;
