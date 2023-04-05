@@ -14,7 +14,18 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AttendanceDb>(options => options.UseInMemoryDatabase("attendancedb"));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    Log.Information("Connected to in-memory database.");
+    builder.Services.AddDbContext<AttendanceDb>(options => options.UseInMemoryDatabase("attendancedb"));
+}
+else
+{
+    Log.Information("Connected to SQL database.");
+    builder.Services.AddDbContext<AttendanceDb>(options => options.UseSqlServer(connectionString));
+}
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddSingleton<IIdGenerator, InMemoryIdGenerator>();
 
