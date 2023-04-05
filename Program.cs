@@ -15,6 +15,7 @@ builder.Services.AddSingleton<IIdGenerator, InMemoryIdGenerator>();
 var currentAssembly = typeof(Program).Assembly;
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(currentAssembly));
 builder.Services.AddValidatorsFromAssembly(currentAssembly);
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -29,5 +30,7 @@ group.MapPut("{id}", async (IMediator mediator, long id, Attendee attendee) =>
 group.MapGet("{id}", async (IMediator mediator, long id) => await mediator.Send(new SingleAttendeeQuery(id)));
 group.MapGet("", async (IMediator mediator) => await mediator.Send(new AllAttendeesQuery()));
 group.MapDelete("{id}", async (IMediator mediator, long id) => await mediator.Send(new AttendeeDeleteCommand() { Id = id }));
+
+app.MapHealthChecks("/health");
 
 app.Run();
