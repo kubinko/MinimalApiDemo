@@ -25,6 +25,9 @@ builder.Services.AddHealthChecks();
 
 builder.Services.AddProblemDetails();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Host.UseSerilog();
 
 var app = builder.Build();
@@ -32,6 +35,13 @@ var app = builder.Build();
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 var group = app.MapGroup("attendance");
 
