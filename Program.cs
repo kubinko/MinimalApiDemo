@@ -1,5 +1,8 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MinimalApi.Commands;
 using MinimalApi.Database;
+using MinimalApi.Queries;
 using MinimalApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,51 +10,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AttendanceDb>(options => options.UseInMemoryDatabase("attendancedb"));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddSingleton<IIdGenerator, InMemoryIdGenerator>();
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly));
 
 var app = builder.Build();
 
 var group = app.MapGroup("attendance");
 
-group.MapPost("/", async (Attendee attendee, AttendanceDb db, IIdGenerator idgenerator) =>
-{
-    attendee.Id = idgenerator.GenerateAttendeeId();
-    await db.AddAsync(attendee);
-    await db.SaveChangesAsync();
-
-    return Results.Created($"attendance/{attendee.Id}", new { attendee.Id });
-});
-group.MapPut("{id}", async (long id, Attendee attendee, AttendanceDb db) =>
+group.MapPost("/", async (IMediator mediator, Attendee attendee) => await mediator.Send(new AttendeeCreateCommand(attendee)));
+group.MapPut("{id}", async (IMediator mediator, long id, Attendee attendee) =>
 {
     attendee.Id = id;
-    db.Update(attendee);
-
-    await db.SaveChangesAsync();
-
-    return Results.NoContent();
+    return await mediator.Send(new AttendeeUpdateCommand(attendee));
 });
-group.MapGet("{id}", (long id, AttendanceDb db) =>
-{
-    var savedAttendee = db.Attendees.SingleOrDefault(att => att.Id == id);
-    if (savedAttendee == null)
-    {
-        return Results.NotFound();
-    }
-    else
-    {
-        return Results.Ok(savedAttendee);
-    }
-});
-group.MapGet("", (AttendanceDb db) => Results.Ok(db.Attendees.ToArray()));
-group.MapDelete("{id}", async (long id, AttendanceDb db) =>
-{
-    var savedAttendee = db.Attendees.SingleOrDefault(att => att.Id == id);
-    if (savedAttendee != null)
-    {
-        db.Attendees.Remove(savedAttendee);
-        await db.SaveChangesAsync();
-    }
-
-    return Results.NoContent();
-});
+group.MapGet("{id}", async (IMediator mediator, long id) => await mediator.Send(new SingleAttendeeQuery(id)));
+group.MapGet("", async (IMediator mediator) => await mediator.Send(new AllAttendeesQuery()));
+group.MapDelete("{id}", async (IMediator mediator, long id) => await mediator.Send(new AttendeeDeleteCommand() { Id = id }));
 
 app.Run();

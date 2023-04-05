@@ -2,7 +2,7 @@
 
 namespace MinimalApi.Database
 {
-    class AttendanceDb : DbContext
+    public class AttendanceDb : DbContext
     {
         public AttendanceDb(DbContextOptions<AttendanceDb> context) : base(context)
         {
