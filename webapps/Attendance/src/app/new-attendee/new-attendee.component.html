@@ -1,0 +1,48 @@
+<form [formGroup]="addAttendeeForm" (ngSubmit)="saveNewAttendee()">
+  <div class="form-group">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name" placeholder="Enter your name" title="Please enter your full name" formControlName="name" required>
+    <div *ngIf="name!.invalid && (name!.dirty || name!.touched)" class="alert alert-danger">
+      <div *ngIf="name!.errors?.['required']">
+        Name is required.
+      </div>
+      <div *ngIf="name!.errors?.['maxlength']">
+        <span>Name cannot exceed 255 characters.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="email">E-mail:</label>
+    <input type="email" id="email" name="email" placeholder="Enter your e-mail address" title="Please enter a valid e-mail address" formControlName="email" required>
+    <div *ngIf="email!.invalid && (email!.dirty || email!.touched)" class="alert alert-danger">
+      <div *ngIf="email!.errors?.['required']">
+        E-mail is required.
+      </div>
+      <div *ngIf="email!.errors?.['maxlength']">
+        <span>E-mail cannot exceed 255 characters.</span>
+      </div>
+      <div *ngIf="email!.errors?.['email']">
+        <span>You must provide a valid e-mail.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="birth-year">Birth Year:</label>
+    <input type="number" id="birth-year" name="birth-year" placeholder="Enter your birth year" title="Please enter your birth year" formControlName="birthYear" required>
+    <div *ngIf="birthYear!.invalid && (birthYear!.dirty || birthYear!.touched)" class="alert alert-danger">
+      <div *ngIf="birthYear!.errors?.['required']">
+        Birth year is required.
+      </div>
+      <div *ngIf="birthYear!.errors?.['min']">
+        <span>Birth year must be at least 1900.</span>
+      </div>
+      <div *ngIf="birthYear!.errors?.['max']">
+        <span>Birth year must be at most 2100.</span>
+      </div>
+    </div>
+  </div>
+
+  <button [disabled]="!addAttendeeForm.valid" type="submit">Submit</button>
+</form>

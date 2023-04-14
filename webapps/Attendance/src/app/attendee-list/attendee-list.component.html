@@ -1,0 +1,15 @@
+<span *ngIf="attendees.length == 0" class="user-info">No attendees registered.</span>
+
+<table *ngIf="attendees.length > 0">
+  <tr>
+    <th style="width: 40%">Name</th>
+    <th style="width: 40%">Email</th>
+    <th style="width: 10%">Birth Year</th>
+    <th style="width: 10%"></th>
+  </tr>
+  <tr *ngFor="let attendee of attendees">
+    <td>{{attendee.name}}</td>
+    <td>{{attendee.email}}</td>
+    <td>{{attendee.birthYear}}</td>
+  </tr>
+</table>
