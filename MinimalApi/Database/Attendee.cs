@@ -1,6 +1,6 @@
 ﻿namespace MinimalApi.Database
 {
-    public record Attendee(string Name, int YearOfBirth, string Email, string Phone)
+    public record Attendee(string Name, string Email, int BirthYear)
     {
         public long Id { get; set; }
     };

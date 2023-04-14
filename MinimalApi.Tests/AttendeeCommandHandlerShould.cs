@@ -12,7 +12,7 @@ namespace MinimalApi.Tests
         [Fact]
         public async Task ReturnNotFoundResponseIfAttendeeWithSpecifiedIdDoesNotExist()
         {
-            var query = new SingleAttendeeQuery(42);
+            var query = new SingleAttendeeQuery(43);
             var handler = CreateHandler();
 
             IResult result = await handler.Handle(query, default);
@@ -23,7 +23,7 @@ namespace MinimalApi.Tests
         [Fact]
         public async Task ReturnAttendeeWithSpecifiedId()
         {
-            var attendee = new Attendee("Bill Gates", 1955, "gates@codera.ma", "") { Id = 42 };
+            var attendee = new Attendee("Bill Gates", "gates@codera.ma", 1955) { Id = 42 };
             var query = new SingleAttendeeQuery(42);
             var handler = CreateHandler(attendee);
 

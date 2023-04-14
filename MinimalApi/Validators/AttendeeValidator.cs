@@ -8,9 +8,8 @@ namespace MinimalApi.Validators
         public AttendeeValidator()
         {
             RuleFor(x => x.Name).NotEmpty().MaximumLength(255);
-            RuleFor(x => x.YearOfBirth).GreaterThan(1900).LessThanOrEqualTo(DateTimeOffset.Now.Year);
             RuleFor(x => x.Email).NotEmpty().MaximumLength(255).EmailAddress();
-            RuleFor(x => x.Phone).MaximumLength(20);
+            RuleFor(x => x.BirthYear).GreaterThan(1900).LessThanOrEqualTo(DateTimeOffset.Now.Year).WithMessage("No time travellers!");
         }
     }
 }
