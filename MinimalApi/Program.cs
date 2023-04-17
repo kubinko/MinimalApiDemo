@@ -3,6 +3,10 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using MinimalApi.Commands;
 using MinimalApi.Database;
+using MinimalApi.Messages;
+using MinimalApi.Messaging.Messages;
+using MinimalApi.Messaging.Services;
+using MinimalApi.Options;
 using MinimalApi.Queries;
 using MinimalApi.Services;
 using Serilog;
@@ -27,7 +31,16 @@ else
 }
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddSingleton<IIdGenerator, InMemoryIdGenerator>();
+
+builder.Services
+    .Configure<ServiceBusOptions>(builder.Configuration.GetSection("ServiceBus"))
+    .Configure<WorkshopSettings>(builder.Configuration.GetSection("Workshop"));
+builder.Services
+    .AddSingleton<IIdGenerator, InMemoryIdGenerator>()
+    .AddScoped<IMessageSender, MessageSender>();
+builder.Services
+    .AddSingleton<TopicMessageReceiver<InvoiceGeneratedMessage>, InvoiceGeneratedMessageReceiver>()
+    .AddHostedService(services => services.GetService<TopicMessageReceiver<InvoiceGeneratedMessage>>()!);
 
 var currentAssembly = typeof(Program).Assembly;
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(currentAssembly));
@@ -57,17 +70,10 @@ if (app.Environment.IsDevelopment())
 var group = app.MapGroup("attendance");
 
 group.MapPost("", async (IMediator mediator, Attendee attendee) => await mediator.Send(new AttendeeCreateCommand(attendee)));
-group.MapPut("{id}", async (IMediator mediator, long id, Attendee attendee) =>
-{
-    attendee.Id = id;
-    return await mediator.Send(new AttendeeUpdateCommand(attendee));
-});
 group.MapGet("{id}", async (IMediator mediator, long id) => await mediator.Send(new SingleAttendeeQuery(id)));
 group.MapGet("", async (IMediator mediator) => await mediator.Send(new AllAttendeesQuery()));
 group.MapDelete("{id}", async (IMediator mediator, long id) => await mediator.Send(new AttendeeDeleteCommand() { Id = id }));
 
 app.MapHealthChecks("/health");
-
-app.Map("/exception", () => { throw new InvalidOperationException("Sample Exception"); });
 
 app.Run();

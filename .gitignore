@@ -362,3 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /MinimalApi/Properties/ServiceDependencies/berthoty-attendance - Web Deploy/profile.arm.json
+/MinimalApi.Invoicing/Properties/serviceDependencies.json
+/MinimalApi.Invoicing/Properties/serviceDependencies.local.json
+/MinimalApi.Invoicing/local.settings.json
