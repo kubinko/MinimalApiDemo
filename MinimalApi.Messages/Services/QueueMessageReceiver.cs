@@ -24,8 +24,13 @@ namespace MinimalApi.Messaging.Services
             }
         }
 
-        protected override async Task<ServiceBusProcessor> CreateProcessor(CancellationToken cancellationToken)
+        protected override async Task<ServiceBusProcessor?> CreateProcessor(CancellationToken cancellationToken)
         {
+            if (_serviceBusAdminClient == null || _serviceBusClient == null)
+            {
+                return null;
+            }
+
             if (!await _serviceBusAdminClient.QueueExistsAsync(_queue, cancellationToken))
             {
                 await _serviceBusAdminClient.CreateQueueAsync(_queue, cancellationToken);

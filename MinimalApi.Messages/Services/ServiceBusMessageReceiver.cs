@@ -70,7 +70,7 @@ namespace MinimalApi.Messaging.Services
             }
         }
 
-        protected abstract Task<ServiceBusProcessor> CreateProcessor(CancellationToken cancellationToken);
+        protected abstract Task<ServiceBusProcessor?> CreateProcessor(CancellationToken cancellationToken);
 
         protected abstract Task ProcessMessage(ProcessMessageEventArgs e);
 

@@ -6,6 +6,13 @@ using MinimalApi.Notifications.Queries;
 using MinimalApi.Notifications.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var appConfigConnectionString = builder.Configuration.GetConnectionString("AppConfig");
+if (!string.IsNullOrEmpty(appConfigConnectionString))
+{
+    builder.Configuration.AddAzureAppConfiguration(appConfigConnectionString);
+}
+
 builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblyContaining<NotificationsLogQuery>());
 
 builder.Services.Configure<ServiceBusOptions>(builder.Configuration.GetSection("ServiceBus"));

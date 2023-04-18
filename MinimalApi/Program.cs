@@ -19,6 +19,12 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
+var appConfigConnectionString = builder.Configuration.GetConnectionString("AppConfig");
+if (!string.IsNullOrEmpty(appConfigConnectionString))
+{
+    builder.Configuration.AddAzureAppConfiguration(appConfigConnectionString);
+}
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
 {
@@ -73,10 +79,10 @@ app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors();
 
 var group = app.MapGroup("attendance");
 
