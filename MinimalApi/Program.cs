@@ -1,3 +1,4 @@
+using Azure.Identity;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,12 @@ var builder = WebApplication.CreateBuilder(args);
 var appConfigConnectionString = builder.Configuration.GetConnectionString("AppConfig");
 if (!string.IsNullOrEmpty(appConfigConnectionString))
 {
-    builder.Configuration.AddAzureAppConfiguration(appConfigConnectionString);
+    builder.Configuration.AddAzureAppConfiguration(options =>
+        options.Connect(appConfigConnectionString)
+            .ConfigureKeyVault(kv =>
+            {
+                kv.SetCredential(new DefaultAzureCredential());
+            }));
 }
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -34,7 +40,8 @@ if (string.IsNullOrEmpty(connectionString))
 else
 {
     Log.Information("Connected to SQL database.");
-    builder.Services.AddDbContext<AttendanceDb>(options => options.UseSqlServer(connectionString));
+    builder.Services
+        .AddDbContext<AttendanceDb>(options => options.UseSqlServer(connectionString));
 }
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();

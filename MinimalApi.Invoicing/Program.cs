@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
@@ -7,7 +8,12 @@ var host = new HostBuilder()
         var appConfigConnectionString = Environment.GetEnvironmentVariable("AppConfig");
         if (!string.IsNullOrEmpty(appConfigConnectionString))
         {
-            builder.AddAzureAppConfiguration(appConfigConnectionString);
+            builder.AddAzureAppConfiguration(options =>
+                options.Connect(appConfigConnectionString)
+                    .ConfigureKeyVault(kv =>
+                    {
+                        kv.SetCredential(new DefaultAzureCredential());
+                    }));
         }
     })
     .ConfigureFunctionsWorkerDefaults()

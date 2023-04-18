@@ -1,3 +1,4 @@
+using Azure.Identity;
 using MediatR;
 using MinimalApi.Messages;
 using MinimalApi.Messaging.Messages;
@@ -10,7 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 var appConfigConnectionString = builder.Configuration.GetConnectionString("AppConfig");
 if (!string.IsNullOrEmpty(appConfigConnectionString))
 {
-    builder.Configuration.AddAzureAppConfiguration(appConfigConnectionString);
+    builder.Configuration.AddAzureAppConfiguration(options =>
+        options.Connect(appConfigConnectionString)
+            .ConfigureKeyVault(kv =>
+            {
+                kv.SetCredential(new DefaultAzureCredential());
+            }));
 }
 
 builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblyContaining<NotificationsLogQuery>());
