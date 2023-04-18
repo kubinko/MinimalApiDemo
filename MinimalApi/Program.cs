@@ -92,6 +92,7 @@ group.MapGet("", async (IMediator mediator) => await mediator.Send(new AllAttend
 group.MapGet("{id}/invoice", async (IMediator mediator, long id, [FromQuery] string? code) => await mediator.Send(new InvoiceQuery(id, code)));
 group.MapDelete("{id}", async (IMediator mediator, long id) => await mediator.Send(new AttendeeDeleteCommand() { Id = id }));
 
+app.MapGet("/info", async (IMediator mediator) => await mediator.Send(new WorkshopInfoQuery()));
 app.MapHealthChecks("/health");
 
 app.Run();
