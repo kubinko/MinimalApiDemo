@@ -1,5 +1,6 @@
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MinimalApi.Commands;
 using MinimalApi.Database;
@@ -34,10 +35,12 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services
     .Configure<ServiceBusOptions>(builder.Configuration.GetSection("ServiceBus"))
-    .Configure<WorkshopSettings>(builder.Configuration.GetSection("Workshop"));
+    .Configure<WorkshopSettings>(builder.Configuration.GetSection("Workshop"))
+    .Configure<InvoicingSettings>(builder.Configuration.GetSection("Invoicing"));
 builder.Services
     .AddSingleton<IIdGenerator, InMemoryIdGenerator>()
-    .AddScoped<IMessageSender, MessageSender>();
+    .AddScoped<IMessageSender, MessageSender>()
+    .AddHttpClient();
 builder.Services
     .AddSingleton<TopicMessageReceiver<InvoiceGeneratedMessage>, InvoiceGeneratedMessageReceiver>()
     .AddHostedService(services => services.GetService<TopicMessageReceiver<InvoiceGeneratedMessage>>()!);
@@ -54,6 +57,13 @@ builder.Services.AddSwaggerGen();
 
 builder.Host.UseSerilog();
 
+builder.Services.AddCors(options =>
+    options.AddDefaultPolicy(policy =>
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod()));
+
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
@@ -63,6 +73,7 @@ app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseCors();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -72,6 +83,7 @@ var group = app.MapGroup("attendance");
 group.MapPost("", async (IMediator mediator, Attendee attendee) => await mediator.Send(new AttendeeCreateCommand(attendee)));
 group.MapGet("{id}", async (IMediator mediator, long id) => await mediator.Send(new SingleAttendeeQuery(id)));
 group.MapGet("", async (IMediator mediator) => await mediator.Send(new AllAttendeesQuery()));
+group.MapGet("{id}/invoice", async (IMediator mediator, long id, [FromQuery] string? code) => await mediator.Send(new InvoiceQuery(id, code)));
 group.MapDelete("{id}", async (IMediator mediator, long id) => await mediator.Send(new AttendeeDeleteCommand() { Id = id }));
 
 app.MapHealthChecks("/health");

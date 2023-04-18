@@ -34,7 +34,7 @@ namespace MinimalApi.Services
 
                     AttendanceDb db = scope.ServiceProvider.GetRequiredService<AttendanceDb>();
 
-                    var attendee = await db.Attendees.FindAsync(message.AttendeeId, e.CancellationToken);
+                    var attendee = await db.Attendees.FindAsync(new object[] { message.AttendeeId }, e.CancellationToken);
                     if (attendee != null)
                     {
                         attendee.InvoiceCode = message.InvoiceCode;

@@ -9,22 +9,29 @@ namespace MinimalApi.Messaging.Services
 {
     public class MessageSender : IMessageSender
     {
-        private readonly ServiceBusAdministrationClient _serviceBusAdminClient;
-        private readonly ServiceBusClient _serviceBusClient;
+        private readonly ServiceBusAdministrationClient? _serviceBusAdminClient;
+        private readonly ServiceBusClient? _serviceBusClient;
         private readonly ILogger<MessageSender> _logger;
 
         public MessageSender(IOptions<ServiceBusOptions> options, ILogger<MessageSender> logger)
         {
-            string serviceBusConnectionString = options?.Value?.ConnectionString
-                ?? throw new ArgumentNullException(nameof(options.Value.ConnectionString));
-            _serviceBusAdminClient = new ServiceBusAdministrationClient(serviceBusConnectionString);
-            _serviceBusClient = new ServiceBusClient(serviceBusConnectionString);
+            string? serviceBusConnectionString = options?.Value?.ConnectionString;
+            if (!string.IsNullOrEmpty(serviceBusConnectionString))
+            {
+                _serviceBusAdminClient = new ServiceBusAdministrationClient(serviceBusConnectionString);
+                _serviceBusClient = new ServiceBusClient(serviceBusConnectionString);
+            }
 
             _logger = logger;
         }
 
         public async Task SendMessageToQueue<T>(string queueName, T message, CancellationToken cancellationToken = default)
         {
+            if (_serviceBusAdminClient == null || _serviceBusClient == null)
+            {
+                return;
+            }
+
             try
             {
                 if (!await _serviceBusAdminClient.QueueExistsAsync(queueName, cancellationToken))
@@ -42,6 +49,11 @@ namespace MinimalApi.Messaging.Services
 
         public async Task SendMessageToTopic<T>(string topicName, T message, CancellationToken cancellationToken = default)
         {
+            if (_serviceBusAdminClient == null || _serviceBusClient == null)
+            {
+                return;
+            }
+
             try
             {
                 if (!await _serviceBusAdminClient.TopicExistsAsync(topicName, cancellationToken))
@@ -59,6 +71,11 @@ namespace MinimalApi.Messaging.Services
 
         private async Task SendMessage<T>(string queueOrTopicName, T message, CancellationToken cancellationToken)
         {
+            if (_serviceBusAdminClient == null || _serviceBusClient == null)
+            {
+                return;
+            }
+
             await using ServiceBusSender sender = _serviceBusClient.CreateSender(queueOrTopicName);
 
             string messageBody = JsonSerializer.Serialize(message);

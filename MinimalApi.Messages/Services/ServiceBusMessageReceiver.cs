@@ -9,22 +9,30 @@ namespace MinimalApi.Messaging.Services
 {
     public abstract class ServiceBusMessageReceiver<T> : IHostedService, IAsyncDisposable
     {
-        protected readonly ServiceBusAdministrationClient _serviceBusAdminClient;
-        protected readonly ServiceBusClient _serviceBusClient;
+        protected readonly ServiceBusAdministrationClient? _serviceBusAdminClient;
+        protected readonly ServiceBusClient? _serviceBusClient;
         private ServiceBusProcessor? _serviceBusProcessor;
         protected readonly ILogger<ServiceBusMessageReceiver<T>> _logger;
 
         public ServiceBusMessageReceiver(IOptions<ServiceBusOptions> options, ILogger<ServiceBusMessageReceiver<T>> logger)
         {
-            string serviceBusConnectionString = options?.Value?.ConnectionString
-                ?? throw new ArgumentNullException(nameof(options.Value.ConnectionString));
-            _serviceBusAdminClient = new ServiceBusAdministrationClient(serviceBusConnectionString);
-            _serviceBusClient = new ServiceBusClient(serviceBusConnectionString);
+            string? serviceBusConnectionString = options?.Value?.ConnectionString;
+            if (!string.IsNullOrEmpty(serviceBusConnectionString))
+            {
+                _serviceBusAdminClient = new ServiceBusAdministrationClient(serviceBusConnectionString);
+                _serviceBusClient = new ServiceBusClient(serviceBusConnectionString);
+            }
+
             _logger = logger;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
+            if (_serviceBusAdminClient == null || _serviceBusClient == null)
+            {
+                return;
+            }
+
             _logger.LogInformation("Starting service bus consumer.");
 
             try
@@ -45,6 +53,11 @@ namespace MinimalApi.Messaging.Services
 
         public async Task StopAsync(CancellationToken stoppingToken)
         {
+            if (_serviceBusProcessor == null)
+            {
+                return;
+            }
+
             _logger.LogInformation("Stopping service bus consumer.");
 
             try
@@ -70,7 +83,10 @@ namespace MinimalApi.Messaging.Services
         async ValueTask IAsyncDisposable.DisposeAsync()
         {
             await DisposeProcessor();
-            await _serviceBusClient.DisposeAsync();
+            if (_serviceBusClient != null)
+            {
+                await _serviceBusClient.DisposeAsync();
+            }
 
             GC.SuppressFinalize(this);
         }
