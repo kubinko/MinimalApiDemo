@@ -18,4 +18,21 @@ export class AttendeeListComponent implements OnInit {
     });
   }
 
+  getInvoiceLink(attendee: Attendee): string {
+    return this.invoiceLinkEnabled(attendee)
+      ? this.apiService.getInvoiceUri(attendee.id, attendee.invoiceCode)
+      : "#";
+  }
+
+  invoiceLinkEnabled(attendee: Attendee): boolean {
+    return attendee.invoiceCode != undefined && attendee.invoiceCode.length > 0;
+  }
+
+  deleteAttendee(id: number) {
+    this.apiService.deleteAttendee(id).subscribe(_ => {
+      this.attendees.forEach((element, index) => {
+        if (element.id == id) this.attendees.splice(index,1);
+      });
+    });
+  }
 }

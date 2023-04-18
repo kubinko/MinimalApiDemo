@@ -11,5 +11,18 @@
     <td>{{attendee.name}}</td>
     <td>{{attendee.email}}</td>
     <td>{{attendee.birthYear}}</td>
+    <td vertical-align: middle>
+      <div>
+        <a [ngClass]="{'isDisabled':!invoiceLinkEnabled(attendee)}"
+          class="action-button"
+          href="{{getInvoiceLink(attendee)}}"
+          target="_blank">
+          🖹
+        </a>
+        <span (click)="deleteAttendee(attendee.id)" class="action-button">
+          ❌
+        </span>
+      </div>
+    </td>
   </tr>
 </table>

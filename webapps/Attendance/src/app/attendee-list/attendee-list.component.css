@@ -55,3 +55,18 @@ span.user-info {
   text-align: center;
   width: 100%;
 }
+
+.isDisabled {
+  color: currentColor;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+  text-decoration: none;
+}
+
+.action-button {
+  width: 32px;
+  height: 32px;
+  font-size: x-large;
+  cursor: pointer;
+}
