@@ -36,6 +36,13 @@ export class ApiService {
       );
   }
 
+  getWorkshopInfo(): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/info`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   private handleError(error: any) {
     console.error('API Error:', error);
     return throwError(() => error);
