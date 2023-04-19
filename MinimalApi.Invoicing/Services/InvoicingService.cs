@@ -63,9 +63,7 @@ namespace MinimalApi.Invoicing.Services
                     information.AttendeeId,
                     information.Name,
                     information.Email,
-                    invoiceCode,
-                    information.WorkshopName,
-                    information.WorkshopPrice),
+                    invoiceCode),
                 cancellationToken);
 
             return invoiceCode;

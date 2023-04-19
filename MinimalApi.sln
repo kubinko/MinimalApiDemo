@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalApi.Notifications", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalApi.Messaging", "MinimalApi.Messages\MinimalApi.Messaging.csproj", "{DAE659A9-7DF0-4ED0-AD2E-E6DA8365A194}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalApi.Invoicing", "MinimalApi.Invoicing\MinimalApi.Invoicing.csproj", "{E63451D2-F48F-470F-A1BE-93199B2595DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinimalApi.Invoicing", "MinimalApi.Invoicing\MinimalApi.Invoicing.csproj", "{E63451D2-F48F-470F-A1BE-93199B2595DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MinimalApi.Common", "MinimalApi.Common\MinimalApi.Common.csproj", "{75561B99-9413-4A46-95EF-E64C73599138}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{E63451D2-F48F-470F-A1BE-93199B2595DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E63451D2-F48F-470F-A1BE-93199B2595DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E63451D2-F48F-470F-A1BE-93199B2595DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75561B99-9413-4A46-95EF-E64C73599138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75561B99-9413-4A46-95EF-E64C73599138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75561B99-9413-4A46-95EF-E64C73599138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75561B99-9413-4A46-95EF-E64C73599138}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

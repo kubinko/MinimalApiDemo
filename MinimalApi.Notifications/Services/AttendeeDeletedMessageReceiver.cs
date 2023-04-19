@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Options;
+using MinimalApi.Common.Options;
 using MinimalApi.Messages;
 using MinimalApi.Messaging.Messages;
 using MinimalApi.Messaging.Services;
@@ -10,14 +11,17 @@ namespace MinimalApi.Notifications.Services
     public class AttendeeDeletedMessageReceiver : QueueMessageReceiver<AttendeeDeletedMessage>
     {
         private readonly INotificationService _notificationService;
+        private readonly WorkshopSettings _workshopSettings;
 
         public AttendeeDeletedMessageReceiver(
             INotificationService notificationService,
             IOptions<ServiceBusOptions> options,
+            IOptions<WorkshopSettings> workshopSettings,
             ILogger<AttendeeDeletedMessageReceiver> logger)
             : base(options, "attendeeDelete", logger)
         {
             _notificationService = notificationService;
+            _workshopSettings = workshopSettings?.Value ?? throw new ArgumentNullException(nameof(workshopSettings));
         }
 
         protected override async Task ProcessMessage(ProcessMessageEventArgs e)
@@ -33,7 +37,7 @@ namespace MinimalApi.Notifications.Services
                         message.Name,
                         message.Email,
                         "Registration cancelled",
-                        $"Your registration to workshop {message.WorkshopName} has been cancelled.");
+                        $"Your registration to workshop {_workshopSettings.Name} has been cancelled.");
                 }
             }
 

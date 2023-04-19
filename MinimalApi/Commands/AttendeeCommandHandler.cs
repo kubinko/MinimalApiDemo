@@ -2,10 +2,10 @@
 using FluentValidation.Results;
 using MediatR;
 using Microsoft.Extensions.Options;
+using MinimalApi.Common.Options;
 using MinimalApi.Database;
 using MinimalApi.Messaging.Messages;
 using MinimalApi.Messaging.Services;
-using MinimalApi.Options;
 using MinimalApi.Services;
 
 namespace MinimalApi.Commands
@@ -70,7 +70,7 @@ namespace MinimalApi.Commands
 
                 await _messageSender.SendMessageToQueue(
                     QueueNames.AttendeeDeleteQueue,
-                    new AttendeeDeletedMessage(savedAttendee.Name, savedAttendee.Email, _settings.Name),
+                    new AttendeeDeletedMessage(savedAttendee.Name, savedAttendee.Email),
                     cancellationToken);
 
                 await _messageSender.SendMessageToQueue(

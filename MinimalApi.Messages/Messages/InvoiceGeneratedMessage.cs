@@ -4,7 +4,5 @@
         long AttendeeId,
         string AttendeeName,
         string AttendeeEmail,
-        string InvoiceCode,
-        string WorkshopName,
-        decimal Price);
+        string InvoiceCode);
 }

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Options;
-using MinimalApi.Options;
+using MinimalApi.Common.Options;
 
 namespace MinimalApi.Queries
 {

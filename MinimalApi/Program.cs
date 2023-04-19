@@ -1,9 +1,10 @@
-using Azure.Identity;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MinimalApi.Commands;
+using MinimalApi.Common;
+using MinimalApi.Common.Options;
 using MinimalApi.Database;
 using MinimalApi.Messages;
 using MinimalApi.Messaging.Messages;
@@ -21,15 +22,7 @@ Log.Logger = new LoggerConfiguration()
 var builder = WebApplication.CreateBuilder(args);
 
 var appConfigConnectionString = builder.Configuration.GetConnectionString("AppConfig");
-if (!string.IsNullOrEmpty(appConfigConnectionString))
-{
-    builder.Configuration.AddAzureAppConfiguration(options =>
-        options.Connect(appConfigConnectionString)
-            .ConfigureKeyVault(kv =>
-            {
-                kv.SetCredential(new DefaultAzureCredential());
-            }));
-}
+builder.Configuration.AddAzureAppConfigurationWithKeyVault(appConfigConnectionString);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
@@ -55,10 +48,8 @@ builder.Services
     .Configure<InvoicingSettings>(builder.Configuration.GetSection("Invoicing"));
 builder.Services
     .AddScoped<IMessageSender, MessageSender>()
-    .AddHttpClient();
-builder.Services
-    .AddSingleton<TopicMessageReceiver<InvoiceGeneratedMessage>, InvoiceGeneratedMessageReceiver>()
-    .AddHostedService(services => services.GetService<TopicMessageReceiver<InvoiceGeneratedMessage>>()!);
+    .AddHttpClient()
+    .AddTopicReceiver<InvoiceGeneratedMessage, InvoiceGeneratedMessageReceiver>();
 
 var currentAssembly = typeof(Program).Assembly;
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(currentAssembly));
@@ -84,7 +75,6 @@ var app = builder.Build();
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
-
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,4 +1,4 @@
 ﻿namespace MinimalApi.Messaging.Messages
 {
-    public record AttendeeDeletedMessage(string Name, string Email, string WorkshopName);
+    public record AttendeeDeletedMessage(string Name, string Email);
 }

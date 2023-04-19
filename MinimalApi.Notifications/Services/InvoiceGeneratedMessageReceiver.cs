@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Options;
+using MinimalApi.Common.Options;
 using MinimalApi.Messages;
 using MinimalApi.Messaging.Messages;
 using MinimalApi.Messaging.Services;
@@ -10,14 +11,17 @@ namespace MinimalApi.Notifications.Services
     public class InvoiceGeneratedMessageReceiver : TopicMessageReceiver<InvoiceGeneratedMessage>
     {
         private readonly INotificationService _notificationService;
+        private readonly WorkshopSettings _workshopSettings;
 
         public InvoiceGeneratedMessageReceiver(
             INotificationService notificationService,
             IOptions<ServiceBusOptions> options,
+            IOptions<WorkshopSettings> workshopSettings,
             ILogger<InvoiceGeneratedMessageReceiver> logger)
             : base(options, "invoiceGenerated", logger)
         {
             _notificationService = notificationService;
+            _workshopSettings = workshopSettings?.Value ?? throw new ArgumentNullException(nameof(workshopSettings));
         }
 
         protected override async Task ProcessMessage(ProcessMessageEventArgs e)
@@ -32,8 +36,8 @@ namespace MinimalApi.Notifications.Services
                     _notificationService.SendNotification(
                         message.AttendeeName,
                         message.AttendeeEmail,
-                        $"Invoice {message.InvoiceCode} for workshop {message.WorkshopName}",
-                        $"Invoice for workshop {message.WorkshopName} has been generated with price {message.Price:n2} EUR.");
+                        $"Invoice {message.InvoiceCode} for workshop {_workshopSettings.Name}",
+                        $"Invoice for workshop {_workshopSettings.Name} has been generated with price {_workshopSettings.Price:n2} EUR.");
                 }
             }
 

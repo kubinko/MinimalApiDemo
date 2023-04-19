@@ -1,4 +1,4 @@
-﻿namespace MinimalApi.Options
+﻿namespace MinimalApi.Common.Options
 {
     public class WorkshopSettings
     {
