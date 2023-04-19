@@ -18,22 +18,23 @@ namespace MinimalApi.Invoicing.Functions
         }
 
         [Function(nameof(InvoiceGeneratorFunction))]
-        public async Task Run([ServiceBusTrigger(
+        [ServiceBusOutput(TopicNames.InvoiceGeneratedTopic, ServiceBusEntityType.Topic, Connection = "ServiceBus:ConnectionString")]
+        public async Task<string> Run([ServiceBusTrigger(
             TopicNames.AttendeeRegistrationTopic,
             "%ServiceBus:SubscriptionRegistration%",
             Connection = "ServiceBus:ConnectionString")] string message,
             CancellationToken cancellationToken)
         {
             var payload = JsonSerializer.Deserialize<AttendeeRegistrationMessage>(message);
-            if (payload == null)
-            {
-                _logger.LogError($"Invalid registration message payload: {message}.");
-            }
-            else
-            {
-                string invoiceCode = await _invoicingService.GenerateAndSaveInvoice(payload, cancellationToken);
-                _logger.LogInformation($"Generated invoice with code {invoiceCode}.");
-            }
+            string invoiceCode = await _invoicingService.GenerateAndSaveInvoice(payload!, cancellationToken);
+
+            _logger.LogInformation($"Generated invoice with code {invoiceCode}.");
+
+            return JsonSerializer.Serialize(new InvoiceGeneratedMessage(
+                payload!.AttendeeId,
+                payload!.Name,
+                payload!.Email,
+                invoiceCode));
         }
     }
 }

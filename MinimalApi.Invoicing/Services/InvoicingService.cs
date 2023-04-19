@@ -57,15 +57,6 @@ namespace MinimalApi.Invoicing.Services
             await _blobStorageService.SaveBlob(
                 new MemoryStream(stream.ToArray()), GetInvoiceFileName(invoiceCode), "application/pdf", cancellationToken);
 
-            await _messageSender.SendMessageToTopic(
-                TopicNames.InvoiceGeneratedTopic,
-                new InvoiceGeneratedMessage(
-                    information.AttendeeId,
-                    information.Name,
-                    information.Email,
-                    invoiceCode),
-                cancellationToken);
-
             return invoiceCode;
         }
 

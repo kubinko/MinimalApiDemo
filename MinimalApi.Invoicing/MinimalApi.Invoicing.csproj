@@ -15,7 +15,6 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.9.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MinimalApi.Common\MinimalApi.Common.csproj" />
     <ProjectReference Include="..\MinimalApi.Messages\MinimalApi.Messaging.csproj" />
   </ItemGroup>
   <ItemGroup>
