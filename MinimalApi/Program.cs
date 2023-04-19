@@ -35,13 +35,16 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 if (string.IsNullOrEmpty(connectionString))
 {
     Log.Information("Connected to in-memory database.");
-    builder.Services.AddDbContext<AttendanceDb>(options => options.UseInMemoryDatabase("attendancedb"));
+    builder.Services
+        .AddDbContext<AttendanceDb>(options => options.UseInMemoryDatabase("attendancedb"))
+        .AddSingleton<IIdGenerator, InMemoryIdGenerator>();
 }
 else
 {
     Log.Information("Connected to SQL database.");
     builder.Services
-        .AddDbContext<AttendanceDb>(options => options.UseSqlServer(connectionString));
+        .AddDbContext<AttendanceDb>(options => options.UseSqlServer(connectionString))
+        .AddSingleton<IIdGenerator, FakeIdGenerator>();
 }
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -51,7 +54,6 @@ builder.Services
     .Configure<WorkshopSettings>(builder.Configuration.GetSection("Workshop"))
     .Configure<InvoicingSettings>(builder.Configuration.GetSection("Invoicing"));
 builder.Services
-    .AddSingleton<IIdGenerator, InMemoryIdGenerator>()
     .AddScoped<IMessageSender, MessageSender>()
     .AddHttpClient();
 builder.Services

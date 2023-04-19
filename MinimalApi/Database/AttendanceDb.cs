@@ -9,6 +9,17 @@ namespace MinimalApi.Database
 
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            if (!this.Database.IsInMemory())
+            {
+                modelBuilder.Entity<Attendee>()
+                    .Property(x => x.Id).ValueGeneratedOnAdd();
+            }
+        }
+
         public DbSet<Attendee> Attendees { get; set; } = default!;
     }
 }
